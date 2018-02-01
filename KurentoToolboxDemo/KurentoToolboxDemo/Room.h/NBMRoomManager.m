@@ -256,7 +256,25 @@ typedef void(^ErrorBlock)(NSError *error);
 
 - (void)setupWebRTCSession {
     NBMMediaConfiguration *defaultConfig = [NBMMediaConfiguration defaultConfiguration];
-    NBMWebRTCPeer *webRTCManager = [[NBMWebRTCPeer alloc] initWithDelegate:self configuration:defaultConfig];
+    
+    NBMMediaConfiguration* customConfig = [[NBMMediaConfiguration alloc] init];
+    customConfig.rendererType = NBMRendererTypeOpenGLES;
+    customConfig.audioBandwidth = 100;
+    customConfig.videoBandwidth = 100;
+    customConfig.audioCodec = NBMAudioCodecOpus;
+    customConfig.videoCodec = NBMVideoCodecVP8;
+    
+    NBMVideoFormat format;
+    format.dimensions = (CMVideoDimensions){720, 360};
+    format.frameRate = 10;
+    format.pixelFormat = NBMPixelFormat420f;
+    customConfig.receiverVideoFormat = format;
+    
+    customConfig.cameraPosition = NBMCameraPositionFront;
+    
+    NBMWebRTCPeer *webRTCManager = [[NBMWebRTCPeer alloc] initWithDelegate:self configuration:customConfig];
+    
+    NSLog(@"____%@",webRTCManager.mediaConfiguration);
     
     if (!webRTCManager) {
         NSError *retryError = [NSError errorWithDomain:@"it.nubomedia.NBMRoomManager"
