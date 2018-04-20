@@ -370,7 +370,7 @@ static NSTimeInterval kRoomClientTimeoutInterval = 5;
     NSMutableDictionary *peers;
     id result = response.result;
     if (result) {
-        id value = [NBMRoomClient element:result getPropertyWithName:@"value" ofClass:[NSArray class] error:error];
+        id value = [NBMRoomClient element:result getPropertyWithName:@"userlist" ofClass:[NSArray class] error:error];
         if (!*error) {
             peers = [NSMutableDictionary dictionary];
             NSArray *jsonPeers = (NSArray *)value;
