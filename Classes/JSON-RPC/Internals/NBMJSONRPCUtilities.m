@@ -21,7 +21,8 @@
 @implementation NSDictionary (NBMUtilites)
 
 + (NSDictionary *)nbm_dictionaryWithJSONString:(NSString *)jsonString {
-    NSParameterAssert(jsonString.length > 0);
+    //NSParameterAssert(jsonString.length > 0);
+	if (jsonString.length == 0) return nil;
     NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSError *error = nil;
     NSDictionary *dict =
@@ -49,9 +50,12 @@
 @implementation NSString (NBMUtilites)
 
 + (NSString *)nbm_stringFromJSONDictionary:(NSDictionary *)jsonDictionary {
-    SBJson4Writer *writer = [[SBJson4Writer alloc] init];
-    NSString *json = [writer stringWithObject:jsonDictionary];
-    return json;
+	SBJson4Writer *writer = [[SBJson4Writer alloc] init];
+	NSString *json = [writer stringWithObject:jsonDictionary];
+	NSMutableArray *array = [NSMutableArray new];
+	[array addObject:json];
+	NSString *arrayJson = [writer stringWithObject:array];
+	return arrayJson;
 //    NSError *error = nil;
 //    NSData *data = [NSJSONSerialization dataWithJSONObject:jsonDictionary options:NSJSONWritingPrettyPrinted error:&error];
 //    if (error) {

@@ -225,7 +225,7 @@ static NSTimeInterval kRequestMaxRetries = 3;
         _delegate = delegate;
         
         //Setup message logic
-        _requestId = 0;
+        _requestId = 1;
         _requestsSent = [NSMutableOrderedSet orderedSet]; //Requests cache (sent)
         _responsesSent = [NSMutableOrderedSet orderedSet]; //Response cache (sent)
         _responsesReceived = [NSMutableOrderedSet orderedSet]; //Response cache (received)
@@ -262,16 +262,28 @@ static NSTimeInterval kRequestMaxRetries = 3;
 
 - (void)sendRequest:(NBMRequest *)requestToSend completion:(void (^)(NBMResponse *))responseBlock {
     //Request
-    if (responseBlock) {
-        NSUInteger reqId = _requestId++;
-        requestToSend.requestId = @(reqId);
-        NBMRequestPack *requestPack = [[NBMRequestPack alloc] initWithRequest:requestToSend responseBlock:responseBlock timeoutDelegate:self];
-        [self sendRequestPack:requestPack retried:NO];
-    }
-    else {
-        //Notification
-        [self sendRequest:requestToSend];
-    }
+//    if (responseBlock) {
+//        NSUInteger reqId = _requestId++;
+//        requestToSend.requestId = @(reqId);
+//        NBMRequestPack *requestPack = [[NBMRequestPack alloc] initWithRequest:requestToSend responseBlock:responseBlock timeoutDelegate:self];
+//        [self sendRequestPack:requestPack retried:NO];
+//    }
+//    else {
+//        //Notification
+//        [self sendRequest:requestToSend];
+//    }
+	NSUInteger reqId = _requestId++;
+	requestToSend.requestId = @(reqId);
+	if (responseBlock) {
+			//        NSUInteger reqId = _requestId++;
+			//        requestToSend.requestId = @(reqId);
+		NBMRequestPack *requestPack = [[NBMRequestPack alloc] initWithRequest:requestToSend responseBlock:responseBlock timeoutDelegate:self];
+		[self sendRequestPack:requestPack retried:NO];
+	}
+	else {
+			//Notification
+		[self sendRequest:requestToSend];
+	}
 }
 
 - (NBMRequest *)sendNotificationWithMethod:(NSString *)method parameters:(id)parameters {
@@ -330,24 +342,24 @@ static NSTimeInterval kRequestMaxRetries = 3;
 }
 
 //unused
-- (void)setupMessageLogic
-{
-    //Requests cache (sent)
-    _requestsSent = [NSMutableOrderedSet orderedSet];
-    //Response cache (sent)
-    _responsesSent = [NSMutableOrderedSet orderedSet];
-    //Response cache (received)
-    _responsesReceived = [NSMutableOrderedSet orderedSet];
-    
-    //Requests
-    _requestId = 0;
-//    _requestTimeout = self.configuration.requestTimeout;
-//    _requestMaxRetries = self.configuration.requestMaxRetries;
-    
-    //Responses
-//    _responseTimeout = _requestTimeout;
-//    _duplicatesResponseTimeout = _responseTimeout;
-}
+//- (void)setupMessageLogic
+//{
+//    //Requests cache (sent)
+//    _requestsSent = [NSMutableOrderedSet orderedSet];
+//    //Response cache (sent)
+//    _responsesSent = [NSMutableOrderedSet orderedSet];
+//    //Response cache (received)
+//    _responsesReceived = [NSMutableOrderedSet orderedSet];
+//
+//    //Requests
+//    _requestId = 0;
+////    _requestTimeout = self.configuration.requestTimeout;
+////    _requestMaxRetries = self.configuration.requestMaxRetries;
+//
+//    //Responses
+////    _responseTimeout = _requestTimeout;
+////    _duplicatesResponseTimeout = _responseTimeout;
+//}
 
 - (void)decodeMessage:(NSDictionary *)messageDictionary
 {
@@ -356,6 +368,11 @@ static NSTimeInterval kRequestMaxRetries = 3;
     if (!messageDictionary) {
         return;
     }
+
+	id error = messageDictionary[NBMJSONRPCErrorKey];
+	if (error) {
+		return;
+	}
     
     NSString *method = messageDictionary[NBMJSONRPCMethodKey];
     NSNumber *ack = messageDictionary[NBMJSONRPCIdKey];
@@ -490,6 +507,11 @@ static NSTimeInterval kRequestMaxRetries = 3;
     if (!requestId) {
         return nil;
     }
+
+	if ([requestId isKindOfClass:[NSNull class]]) {
+		return nil;
+	}
+
     [_requestsSent.set enumerateObjectsUsingBlock:^(NBMRequestPack* aRequestPack, BOOL *stop) {
         if ([aRequestPack.request.requestId isEqualToNumber:requestId]) {
             requestPack = aRequestPack;

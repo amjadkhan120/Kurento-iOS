@@ -20,18 +20,48 @@
 #import "NBMRoomVideoViewController.h"
 
 #import "MBProgressHUD.h"
+#import "JSON-RPC.h"
 
 //#error : Define WS Room URI (es. wss://localhost:8443/room)
 static NSString *defaultWsRoom = @"https://kurento.teamlife.it:8443/room";
 static  NSString* const kRoomURLString = @"RoomServerURL";
 
-@interface NBMRoomMainViewController () <NBMRoomLoginViewCellDelegate>
+@interface NBMRoomMainViewController () <NBMRoomLoginViewCellDelegate, NBMJSONRPCClientDelegate>
 
 @property (nonatomic, strong) NBMRoom *room;
+@property (nonatomic, strong) NBMJSONRPCClient *client;
 
 @end
 
 @implementation NBMRoomMainViewController
+
+- (void)viewDidLoad {
+	[super viewDidLoad];
+
+	NSString *address = @"<ADDRESS_HERE>";
+
+	self.client = [[NBMJSONRPCClient alloc] initWithURL:[NSURL URLWithString:address] delegate:self];
+}
+
+#pragma mark - NBMJSONRPCClientDelegate
+
+
+- (void)clientDidConnect:(NBMJSONRPCClient *)client {
+	NSLog(@"clientDidConnect");
+}
+
+- (void)clientDidDisconnect:(NBMJSONRPCClient *)client {
+	NSLog(@"clientDidDisconnect");
+}
+
+- (void)client:(NBMJSONRPCClient *)client didFailWithError:(NSError *)error {
+	NSLog(@"didFailWithError");
+}
+
+- (void)client:(NBMJSONRPCClient *)client didReceiveRequest:(NBMRequest *)request {
+	NSLog(@"didReceiveRequest");
+}
+
 
 #pragma mark - Table view data source
 

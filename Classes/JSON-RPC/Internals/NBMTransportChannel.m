@@ -238,19 +238,51 @@ static NSTimeInterval kChannelKeepaliveInterval = 20.0;
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)messageData
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSDictionary *messageDictionary;
-        if ([messageData isKindOfClass:[NSData class]]) {
-            messageDictionary = [NSDictionary nbm_dictionaryWithJSONData:messageData];
-        } else if ([messageData isKindOfClass:[NSString class]]) {
-            messageDictionary = [NSDictionary nbm_dictionaryWithJSONString:messageData];
-        } else {
-            DDLogWarn(@"Unknown message format: %@", messageData);
-        }
-        
-        DDLogVerbose(@"WebSocket: did receive message: %@", messageDictionary);
-        [self.delegate channel:self didReceiveMessage:messageDictionary];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        NSDictionary *messageDictionary;
+//        if ([messageData isKindOfClass:[NSData class]]) {
+//            messageDictionary = [NSDictionary nbm_dictionaryWithJSONData:messageData];
+//			NSLog(@"messageDictionary %@",messageDictionary);
+//        } else if ([messageData isKindOfClass:[NSString class]]) {
+//			NSLog(@"messageData %@",messageData);
+//            messageDictionary = [NSDictionary nbm_dictionaryWithJSONString:messageData];
+//        } else {
+//            DDLogWarn(@"Unknown message format: %@", messageData);
+//        }
+//
+//        DDLogVerbose(@"WebSocket: did receive message: %@", messageDictionary);
+//		NSLog(@"WebSocket: did receive message: %@",messageDictionary);
+//        [self.delegate channel:self didReceiveMessage:messageDictionary];
+//    });
+	dispatch_async(dispatch_get_main_queue(), ^{
+		NSDictionary *messageDictionary;
+		if ([messageData isKindOfClass:[NSData class]]) {
+			messageDictionary = [NSDictionary nbm_dictionaryWithJSONData:messageData];
+		} else if ([messageData isKindOfClass:[NSString class]]) {
+			if (((NSString *)messageData).length < 1) return;
+			if (((NSString *)messageData).length < 2) return;
+
+			NSString *substring = [messageData substringFromIndex:1];
+			NSData *data = [substring dataUsingEncoding:NSUTF8StringEncoding];
+			NSError *error = nil;
+			NSArray *arr =
+			[NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+			if (error) {
+				NSLog(@"Error parsing JSON: %@", error.localizedDescription);
+				return;
+			}
+			for (id json in arr) {
+				if ([json isKindOfClass:[NSString class]]) {
+					NSDictionary *messageDict = [NSDictionary nbm_dictionaryWithJSONString:json];
+					if (messageDict) {
+						[self.delegate channel:self didReceiveMessage:messageDict];
+					}
+				}
+			}
+		} else {
+			NSLog(@"Unknown message format: %@", messageData);
+		}
+	});
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error
