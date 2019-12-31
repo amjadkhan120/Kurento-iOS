@@ -22,14 +22,14 @@
 + (instancetype)defaultConfiguration {
     NBMMediaConfiguration *config = [[NBMMediaConfiguration alloc] init];
     config.rendererType = NBMRendererTypeOpenGLES;
-    config.audioBandwidth = 0;
-    config.videoBandwidth = 0;
+    config.audioBandwidth = 50;
+    config.videoBandwidth = 50;
     config.audioCodec = NBMAudioCodecOpus;
     config.videoCodec = NBMVideoCodecVP8;
     
     NBMVideoFormat format;
-    format.dimensions = (CMVideoDimensions){640, 480};
-    format.frameRate = 30;
+    format.dimensions = (CMVideoDimensions){320, 240};
+    format.frameRate = 15;
     format.pixelFormat = NBMPixelFormat420f;
     config.receiverVideoFormat = format;
     

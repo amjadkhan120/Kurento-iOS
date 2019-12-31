@@ -89,6 +89,7 @@ NSString *const kPeerCollectionViewCellIdentifier = @"PeerCollectionViewCellIden
 - (void)dealloc {
     DDLogDebug(@"%s", __PRETTY_FUNCTION__);
     [self removeRoomManagerObservers];
+    [UIApplication sharedApplication].idleTimerDisabled = NO;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
@@ -122,7 +123,7 @@ NSString *const kPeerCollectionViewCellIdentifier = @"PeerCollectionViewCellIden
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = self.peersCollectionView.backgroundColor = [UIColor blackColor];
-    
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
     [self setupToolbar];
     
     self.roomManager = [[NBMRoomManager alloc] initWithDelegate:self];
